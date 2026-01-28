@@ -1,0 +1,37 @@
+name: CI - Python (PyPA Sample)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  python-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'   
+
+      - name: Upgrade pip & install build/test tooling
+        run: |
+          python -m pip install --upgrade pip
+          # 'build' creates sdist and wheel from pyproject.toml (PEP 517)
+          pip install build
+          # install test runner if you plan to add/keep tests
+          pip install pytest
+     
+      - name: Build package (sdist & wheel)
+        run: |
+          python -m build
+          mkdir -p staging
+          cp dist/* staging/
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: Package
+          path: staging
